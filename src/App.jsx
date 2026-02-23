@@ -39,7 +39,7 @@ export default function App() {
           <div className="hero-left">
             <span className="hero-icon"><i className="fa-solid fa-baseball-bat-ball" /></span>
             <div>
-              <p className="hero-kicker">Cricket DLS Pro</p>
+              <p className="hero-kicker">Cricket Calculator</p>
               <h1>Rain & NRR Calculator Suite</h1>
             </div>
           </div>
