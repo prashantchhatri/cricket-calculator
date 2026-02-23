@@ -136,11 +136,11 @@ export function buildPredictor(input) {
       };
     }
 
-    const concedeRate = Math.max(3.5, maxOpp / expectedOvers || 3.5);
-    const bowlOutOvers = Math.min(expectedOvers, Math.max(0.1, maxOpp / concedeRate));
+    const minWinningMargin = Math.max(1, defend - maxOpp);
+
     return {
       mode: 'batting_first',
-      message: `All out opponent under ${maxOpp} runs before ${ballsToOvers(Math.round(bowlOutOvers * 6))} overs.`,
+      message: `Win by at least ${minWinningMargin} runs (score ${defend}, restrict opponent to ${maxOpp} or fewer). If opponent is all out, NRR still counts full ${expectedOvers.toFixed(1)} overs (official rule).`,
     };
   }
 
@@ -157,11 +157,15 @@ export function buildPredictor(input) {
     };
   }
 
-  const oversSaved = Math.max(0, expectedOvers - chaseOvers);
-  const wicketsLeft = Math.min(10, Math.max(1, Math.round((oversSaved / expectedOvers) * 8) + 2));
+  if (chaseBy > expectedOvers) {
+    return {
+      mode: 'bowling_first',
+      message: `For this target NRR, chasing ${chaseTarget} may still be insufficient at ${expectedOvers.toFixed(1)} overs. You need a faster chase or better outcomes in other matches.`,
+    };
+  }
 
   return {
     mode: 'bowling_first',
-    message: `Chase target ${chaseTarget} in ${ballsToOvers(Math.round(chaseOvers * 6))} overs with ${wicketsLeft} wickets remaining.`,
+    message: `Chase target ${chaseTarget} in ${ballsToOvers(Math.round(chaseOvers * 6))} overs or fewer to hit the target NRR.`,
   };
 }
