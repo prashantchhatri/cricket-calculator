@@ -21,6 +21,7 @@ export default function NrrCalculator() {
   });
 
   const [applied, setApplied] = useState(state);
+  const [hasCalculated, setHasCalculated] = useState(false);
   const output = useMemo(() => calculateMatchNrr(applied), [applied]);
 
   const set = (k, v) => setState((prev) => ({ ...prev, [k]: v }));
@@ -33,7 +34,7 @@ export default function NrrCalculator() {
   return (
     <div className="panel-grid">
       <section className="panel">
-        <h2>NRR Calculator Inputs</h2>
+        <h2><i className="fa-solid fa-calculator" /> NRR Calculator Inputs</h2>
         <div className="grid three">
           <label><span>Match Format</span><select value={state.matchFormat} onChange={(e) => onFormat(e.target.value)}><option value="t20">T20</option><option value="odi">ODI</option><option value="custom">Custom</option></select></label>
           <label><span>Match Overs</span><input value={state.matchOvers} onChange={(e) => set('matchOvers', e.target.value)} /></label>
@@ -73,17 +74,21 @@ export default function NrrCalculator() {
         </div>
 
         <div className="actions">
-          <button onClick={() => setApplied(state)}>Calculate NRR</button>
-          <button className="alt" onClick={() => setApplied(state)}>Load Example</button>
+          <button onClick={() => { setApplied(state); setHasCalculated(true); }}>Calculate NRR</button>
+          <button className="alt" onClick={() => { setApplied(state); setHasCalculated(true); }}>Load Example</button>
         </div>
       </section>
 
       <section className="panel full">
-        <h2>NRR Output</h2>
-        <div className="grid two">
-          <article className="result-card"><p className="label">Team A NRR</p><p className="value">{output.teamNrr.toFixed(4)}</p></article>
-          <article className="result-card"><p className="label">Team B NRR</p><p className="value">{output.oppNrr.toFixed(4)}</p></article>
-        </div>
+        <h2><i className="fa-solid fa-chart-column" /> NRR Output</h2>
+        {!hasCalculated ? (
+          <div className="message">Click <strong>Calculate NRR</strong> to see result.</div>
+        ) : (
+          <div className="grid two">
+            <article className="result-card"><p className="label"><i className="fa-solid fa-users" /> Team A NRR</p><p className="value">{output.teamNrr.toFixed(4)}</p></article>
+            <article className="result-card"><p className="label"><i className="fa-solid fa-users-viewfinder" /> Team B NRR</p><p className="value">{output.oppNrr.toFixed(4)}</p></article>
+          </div>
+        )}
       </section>
     </div>
   );

@@ -19,22 +19,27 @@ export default function NrrPredictor() {
 
   const [form, setForm] = useState(defaults);
   const [applied, setApplied] = useState(defaults);
+  const [hasPredicted, setHasPredicted] = useState(false);
 
   const scenario = useMemo(() => buildPredictor(applied), [applied]);
 
   const set = (k, v) => setForm((prev) => ({ ...prev, [k]: v }));
 
-  const onPredict = () => setApplied(form);
+  const onPredict = () => {
+    setApplied(form);
+    setHasPredicted(true);
+  };
 
   const onLoad = () => {
     setForm(defaults);
     setApplied(defaults);
+    setHasPredicted(true);
   };
 
   return (
     <div className="panel-grid">
       <section className="panel">
-        <h2>NRR Target Predictor</h2>
+        <h2><i className="fa-solid fa-crosshairs" /> NRR Target Predictor</h2>
         <div className="grid four">
           <label><span>Current NRR</span><input value={form.currentNrr} onChange={(e) => set('currentNrr', e.target.value)} /></label>
           <label><span>Matches Played</span><input value={form.matchesPlayed} onChange={(e) => set('matchesPlayed', e.target.value)} /></label>
@@ -69,16 +74,22 @@ export default function NrrPredictor() {
       </section>
 
       <section className="panel full">
-        <h2>Scenario Summary</h2>
-        <div className="grid two">
-          <article className="result-card"><p className="label">Current NRR</p><p className="value">{Number(applied.currentNrr).toFixed(4)}</p></article>
-          <article className="result-card"><p className="label">Target NRR</p><p className="value">{Number(applied.targetNrr).toFixed(4)}</p></article>
-        </div>
+        <h2><i className="fa-solid fa-clipboard-list" /> Scenario Summary</h2>
+        {!hasPredicted ? (
+          <div className="message">Click <strong>Predict</strong> to see required scenario.</div>
+        ) : (
+          <>
+            <div className="grid two">
+              <article className="result-card"><p className="label"><i className="fa-solid fa-wave-square" /> Current NRR</p><p className="value">{Number(applied.currentNrr).toFixed(4)}</p></article>
+              <article className="result-card"><p className="label"><i className="fa-solid fa-crosshairs" /> Target NRR</p><p className="value">{Number(applied.targetNrr).toFixed(4)}</p></article>
+            </div>
 
-        <div className="card darkish">
-          <p>{applied.inningsMode === 'batting_first' ? 'Batting First Scenarios (for required NRR)' : 'Bowling First Scenarios (for required NRR)'}</p>
-          <div className="message">{scenario.message}</div>
-        </div>
+            <div className="card darkish">
+              <p>{applied.inningsMode === 'batting_first' ? 'Batting First Scenarios (for required NRR)' : 'Bowling First Scenarios (for required NRR)'}</p>
+              <div className="message">{scenario.message}</div>
+            </div>
+          </>
+        )}
       </section>
     </div>
   );

@@ -127,6 +127,15 @@ export function buildPredictor(input) {
     const defend = Math.max(1, Number(input.predictedTeamScore) || 1);
     const maxOppRaw = (((runsFor + defend) / (oversFor + expectedOvers)) - targetNrr) * (oversAgainst + expectedOvers) - runsAgainst;
     const maxOpp = Math.max(0, Math.floor(maxOppRaw));
+
+    // If maxOpp is <= 0, requested target NRR is not realistically achievable from current totals.
+    if (maxOppRaw <= 0) {
+      return {
+        mode: 'batting_first',
+        message: 'Target NRR is too high for this match setup. Try lowering Target NRR or increasing predicted team score.',
+      };
+    }
+
     const concedeRate = Math.max(3.5, maxOpp / expectedOvers || 3.5);
     const bowlOutOvers = Math.min(expectedOvers, Math.max(0.1, maxOpp / concedeRate));
     return {
@@ -140,6 +149,14 @@ export function buildPredictor(input) {
   const denominator = targetNrr + ((runsAgainst + oppScore) / (oversAgainst + expectedOvers));
   const chaseBy = denominator > 0 ? ((runsFor + chaseTarget) / denominator) - oversFor : expectedOvers;
   const chaseOvers = Math.min(expectedOvers, Math.max(0.1, chaseBy));
+
+  if (chaseBy <= 0) {
+    return {
+      mode: 'bowling_first',
+      message: 'Target NRR is too high for this match setup. Try lowering Target NRR or choosing a lower predicted opponent score.',
+    };
+  }
+
   const oversSaved = Math.max(0, expectedOvers - chaseOvers);
   const wicketsLeft = Math.min(10, Math.max(1, Math.round((oversSaved / expectedOvers) * 8) + 2));
 

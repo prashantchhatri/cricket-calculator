@@ -18,13 +18,9 @@ export default function DlsCalculator() {
 
   const [applied, setApplied] = useState(form);
   const [showInfo, setShowInfo] = useState(false);
+  const [hasCalculated, setHasCalculated] = useState(false);
 
   const result = useMemo(() => calculateDlsState(applied), [applied]);
-  const preview = useMemo(
-    () => calculateDlsState({ ...form, revisedOvers: form.matchStoppedNow ? form.rainHappenedOvers : form.weatherDecidedOvers }),
-    [form]
-  );
-  const display = form.matchStoppedNow ? preview : result;
 
   const onChange = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
@@ -32,6 +28,7 @@ export default function DlsCalculator() {
     const next = { ...form };
     next.revisedOvers = form.matchStoppedNow ? form.rainHappenedOvers : form.weatherDecidedOvers;
     setApplied(next);
+    setHasCalculated(true);
   };
 
   const onReset = () => {
@@ -50,6 +47,7 @@ export default function DlsCalculator() {
     };
     setForm(reset);
     setApplied(reset);
+    setHasCalculated(false);
   };
 
   return (
@@ -74,7 +72,7 @@ export default function DlsCalculator() {
         </label>
 
         <div className="card">
-          <p>First Innings (Team 1)</p>
+          <p><i className="fa-solid fa-people-group" /> First Innings (Team 1)</p>
           <div className="grid three">
             <label><span>Score</span><input value={form.firstInningsScore} onChange={(e) => onChange('firstInningsScore', Number(e.target.value || 0))} /></label>
             <label><span>Wickets</span><input value={form.firstInningsWickets} onChange={(e) => onChange('firstInningsWickets', Number(e.target.value || 0))} /></label>
@@ -83,7 +81,7 @@ export default function DlsCalculator() {
         </div>
 
         <div className="card">
-          <p>Second Innings (Team 2 at Rain Time)</p>
+          <p><i className="fa-solid fa-cloud-showers-heavy" /> Second Innings (Team 2 at Rain Time)</p>
           <div className="grid three">
             <label><span>Current Score</span><input value={form.secondInningsScore} onChange={(e) => onChange('secondInningsScore', Number(e.target.value || 0))} /></label>
             <label><span>Wickets Lost</span><input value={form.secondInningsWickets} onChange={(e) => onChange('secondInningsWickets', Number(e.target.value || 0))} /></label>
@@ -105,23 +103,28 @@ export default function DlsCalculator() {
 
       <section className="panel">
         <h2><i className="fa-solid fa-trophy" /> DLS Results</h2>
-        {form.matchStoppedNow ? (
-          <article className="result-card"><p className="label">Match Result</p><p className="value small">{display.stoppedResult}</p></article>
+        {!hasCalculated ? (
+          <div className="message">Click <strong>Calculate DLS</strong> to see result.</div>
+        ) : form.matchStoppedNow ? (
+          <article className="result-card"><p className="label"><i className="fa-solid fa-medal" /> Match Result</p><p className="value small">{result.stoppedResult}</p></article>
         ) : (
           <>
-            <article className="result-card"><p className="label">Target Score At {result.effectiveOver} Overs</p><p className="value">{result.targetAtProjection}</p></article>
-            <article className="result-card"><p className="label">Runs Needed From Current Score</p><p className="value">{result.runsNeededAtProjection}</p></article>
+            <article className="result-card"><p className="label"><i className="fa-solid fa-bullseye" /> Target Score At {result.effectiveOver} Overs</p><p className="value">{result.targetAtProjection}</p></article>
+            <article className="result-card"><p className="label"><i className="fa-solid fa-flag-checkered" /> Runs Needed From Current Score</p><p className="value">{result.runsNeededAtProjection}</p></article>
           </>
         )}
 
         <p className="note">This app uses a simplified public DLS-style resource model. ICC matches use official licensed DLS-Stern tables, so results may differ.</p>
       </section>
 
-      {!form.matchStoppedNow && (
+      {hasCalculated && !applied.matchStoppedNow && (
         <section className="panel full">
           <div className="row-between">
             <h2><i className="fa-solid fa-table-list" /> DLS Par Score Projections</h2>
-            <button className="icon" onClick={() => setShowInfo(true)}><i className="fa-solid fa-circle-info" /></button>
+            <span className="info-wrap">
+              <button className="icon" onClick={() => setShowInfo(true)}><i className="fa-solid fa-circle-info" /></button>
+              <span className="mini-tooltip">Par score = Team 1 score x resource ratio at selected over.</span>
+            </span>
           </div>
           <table>
             <thead><tr><th>Over</th><th>Par Score at Over</th></tr></thead>
@@ -138,10 +141,10 @@ export default function DlsCalculator() {
         <div className="modal-wrap" onClick={() => setShowInfo(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h3>Calculation Details</h3>
-            <p>Effective over: {display.effectiveOver}</p>
-            <p>Par at over: {display.parAtProjection}</p>
-            <p>Target at over: {display.targetAtProjection}</p>
-            <p>Runs needed: {display.runsNeededAtProjection}</p>
+            <p>Effective over: {result.effectiveOver}</p>
+            <p>Par at over: {result.parAtProjection}</p>
+            <p>Target at over: {result.targetAtProjection}</p>
+            <p>Runs needed: {result.runsNeededAtProjection}</p>
             <button onClick={() => setShowInfo(false)}>Close</button>
           </div>
         </div>
