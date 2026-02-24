@@ -140,7 +140,7 @@ export function buildPredictor(input) {
 
     return {
       mode: 'batting_first',
-      message: `Win by at least ${minWinningMargin} runs (score ${defend}, restrict opponent to ${maxOpp} or fewer). If opponent is all out, NRR still counts full ${expectedOvers.toFixed(1)} overs (official rule).`,
+      message: `Win by at least ${minWinningMargin} runs (score ${defend}, restrict opponent to ${maxOpp} or fewer).`,
     };
   }
 
