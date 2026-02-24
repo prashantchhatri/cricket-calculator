@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import DlsCalculator from './components/DlsCalculator';
 import NrrCalculator from './components/NrrCalculator';
 import NrrPredictor from './components/NrrPredictor';
@@ -59,6 +60,8 @@ export default function App() {
       <footer>
         This app is created by Prashant Chhatri for fun. It can also be used in local matches for basic calculations to help decide a winner if a match is interrupted by rain or other situations.
       </footer>
+
+      <Analytics />
     </div>
   );
 }
